@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -31,6 +32,9 @@ export class UsersService {
   }
 
   async findOne(userId: number): Promise<User> {
+    if (!userId) {
+      throw new BadRequestException("Un ID d'utilisateur valide est requis");
+    }
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -45,12 +49,14 @@ export class UsersService {
   }
 
   async update(userId: number, data: Prisma.UserUpdateInput): Promise<User> {
+    if (!userId) {
+      throw new BadRequestException("Un ID d'utilisateur valide est requis");
+    }
     try {
-      const user = await this.prisma.user.update({
+      return await this.prisma.user.update({
         where: { id: userId },
         data,
       });
-      return user;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Gérer la contrainte d'unicité
@@ -72,6 +78,9 @@ export class UsersService {
   }
 
   async remove(userId: number) {
+    if (!userId) {
+      throw new BadRequestException("Un ID d'utilisateur valide est requis");
+    }
     try {
       return await this.prisma.user.delete({
         where: { id: userId },

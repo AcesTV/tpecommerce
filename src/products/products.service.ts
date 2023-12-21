@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma, Product } from '@prisma/client';
 
@@ -19,8 +23,11 @@ export class ProductsService {
     return this.prisma.product.findMany();
   }
 
-  findOne(productId: number): Promise<Product> {
-    const product = this.prisma.product.findUnique({
+  async findOne(productId: number): Promise<Product> {
+    if (!productId) {
+      throw new BadRequestException('Un ID de produit valide est requis');
+    }
+    const product = await this.prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -33,30 +40,14 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, data: Prisma.ProductUpdateInput) {
-    try {
-      const product = this.prisma.product.update({
-        where: { id: id },
-        data,
-      });
-      return product;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // Gérer le produit non trouvé
-        if (error.code === 'P2025') {
-          throw new NotFoundException(
-            `Le produit avec l'ID ${id} n'existe pas`,
-          );
-        }
-      }
-      throw error;
+  update(productId: number, data: Prisma.ProductUpdateInput) {
+    if (!productId) {
+      throw new BadRequestException('Un ID de produit valide est requis');
     }
-  }
-
-  remove(productId: number) {
     try {
-      return this.prisma.product.delete({
+      return this.prisma.product.update({
         where: { id: productId },
+        data,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -67,6 +58,28 @@ export class ProductsService {
           );
         }
       }
+      throw error;
+    }
+  }
+
+  async remove(productId: number) {
+    if (!productId) {
+      throw new BadRequestException('Un ID de produit valide est requis');
+    }
+    try {
+      return await this.prisma.product.delete({
+        where: { id: productId },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // Gérer l'utilisateur non trouvé
+        if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Utilisateur avec l'ID ${productId} non trouvé`,
+          );
+        }
+      }
+      // Relancer les autres erreurs
       throw error;
     }
   }
