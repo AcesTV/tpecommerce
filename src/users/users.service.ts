@@ -37,6 +37,9 @@ export class UsersService {
     }
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        orders: true,
+      },
     });
 
     if (!user) {
