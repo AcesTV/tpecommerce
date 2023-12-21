@@ -15,7 +15,7 @@ import { User as UserModel } from '@prisma/client';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('signup')
   async create(
     @Body()
     userData: {

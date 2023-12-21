@@ -6,13 +6,23 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
   async create(data: Prisma.UserCreateInput): Promise<User> {
     try {
-      return await this.prisma.user.create({ data });
+      const encryptedPassword = await bcrypt.hash(data.password, 10);
+
+      return await this.prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: encryptedPassword,
+          adress: data.adress,
+        },
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Vérifier si l'erreur est due à une contrainte d'unicité
@@ -51,14 +61,45 @@ export class UsersService {
     return user;
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    if (!email) {
+      throw new BadRequestException("Un email d'utilisateur valide est requis");
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { email: email },
+      include: {
+        orders: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `L'utilisateur avec l'email ${email} non trouvé`,
+      );
+    }
+
+    return user;
+  }
+
   async update(userId: number, data: Prisma.UserUpdateInput): Promise<User> {
     if (!userId) {
       throw new BadRequestException("Un ID d'utilisateur valide est requis");
     }
     try {
+      const password =
+        typeof data.password === 'string' ? data.password : data.password.set;
+      if (password) {
+        data.password = await bcrypt.hash(password, 10);
+      }
+
       return await this.prisma.user.update({
         where: { id: userId },
-        data,
+        data: {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          adress: data.adress,
+        },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
