@@ -29,13 +29,13 @@ model User {
 }
 
 model Order {
-  id        Int               @id @default(autoincrement())
-  createdAt DateTime          @default(now())
-  user      User              @relation(fields: [userId], references: [id])
-  userId    Int
-  status    String
-  total     Float
-  products  orders_products[]
+  id         Int               @id @default(autoincrement())
+  createdAt  DateTime          @default(now())
+  user       User              @relation(fields: [userId], references: [id])
+  userId     Int
+  status     String
+  totalPrice Float
+  products   orders_products[]
 }
 
 model orders_products {
