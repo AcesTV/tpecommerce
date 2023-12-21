@@ -40,9 +40,10 @@ export class OrdersController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() productData: { status?: string; totalPrice?: number },
+    @Body() orderData: CreateOrderDto,
   ): Promise<OrderModel> {
-    return this.ordersService.update(+id, productData);
+    const { userId, status, products } = orderData;
+    return this.ordersService.update(+id, { userId, status, products });
   }
 
   @Delete(':id')
