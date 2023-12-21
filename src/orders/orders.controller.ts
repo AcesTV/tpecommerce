@@ -18,18 +18,13 @@ export class OrdersController {
 
   @Post()
   create(@Body() orderData: CreateOrderDto): Promise<OrderModel> {
-    if (
-      !orderData.userId ||
-      !orderData.status ||
-      !orderData.totalPrice ||
-      !orderData.products
-    ) {
+    if (!orderData.userId || !orderData.status || !orderData.products) {
       throw new BadRequestException('Tous les champs sont obligatoires');
     }
 
-    const { userId, status, totalPrice, products } = orderData;
+    const { userId, status, products } = orderData;
 
-    return this.ordersService.create({ userId, status, totalPrice }, products);
+    return this.ordersService.create({ userId, status, products });
   }
 
   @Get()

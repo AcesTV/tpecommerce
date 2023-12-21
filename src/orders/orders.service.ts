@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Prisma, Order, orders_products } from '@prisma/client';
+import { Prisma, Order } from '@prisma/client';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
@@ -13,11 +13,39 @@ export class OrdersService {
   async create(orderData: CreateOrderDto): Promise<Order> {
     try {
       return this.prisma.$transaction(async (prisma) => {
+        const productIds = orderData.products.map((p) => p.productId);
+        const existingProducts = await prisma.product.findMany({
+          where: {
+            id: { in: productIds },
+          },
+        });
+        const existingProductIds = new Set(existingProducts.map((p) => p.id));
+
+        // Trouver les produits non existants
+        const nonExistingProducts = productIds.filter(
+          (id) => !existingProductIds.has(id),
+        );
+        if (nonExistingProducts.length > 0) {
+          throw new NotFoundException(
+            `Les produits suivants n'existent pas: ${nonExistingProducts.join(
+              ', ',
+            )}`,
+          );
+        }
+
+        const totalPrice = orderData.products.reduce(
+          (acc, curr) =>
+            acc +
+            existingProducts.find((p) => p.id === curr.productId).price *
+              curr.quantity,
+          0,
+        );
+
         const order = await prisma.order.create({
           data: {
             userId: orderData.userId,
             status: orderData.status,
-            totalPrice: orderData.totalPrice,
+            totalPrice: totalPrice,
           },
         });
 
