@@ -1,34 +1,68 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { User as UserModel } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(
+    @Body()
+    userData: {
+      name: string;
+      email: string;
+      password: string;
+      adress: string;
+    },
+  ): Promise<UserModel> {
+    if (
+      !userData.name ||
+      !userData.email ||
+      !userData.password ||
+      !userData.adress
+    ) {
+      throw new BadRequestException('Tous les champs sont obligatoires');
+    }
+
+    return this.usersService.create(userData);
   }
 
   @Get()
-  findAll() {
+  async findAll(): Promise<UserModel[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<UserModel> {
     return this.usersService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(
+    @Param('id') id: string,
+    @Body()
+    userData: {
+      name?: string;
+      email?: string;
+      password?: string;
+      adress?: string;
+    },
+  ): Promise<UserModel> {
+    return this.usersService.update(+id, userData);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<UserModel> {
     return this.usersService.remove(+id);
   }
 }
