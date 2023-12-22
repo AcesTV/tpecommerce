@@ -1,0 +1,21 @@
+<!-- views/create-order.hbs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Créer une Commande</title>
+</head>
+<body>
+<h1>Créer une Commande</h1>
+<form action="/orders/create" method="post">
+  {{#each products as |product|}}
+    <div>
+      <label>{{product.name}}: </label>
+      <label>
+        <input type="number" name="quantities[{{product.id}}]" min="1">
+      </label>
+    </div>
+  {{/each}}
+  <button type="submit">Créer Commande</button>
+</form>
+</body>
+</html>

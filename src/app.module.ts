@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { RateLimiterModule } from 'nestjs-rate-limiter';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 ConfigModule.forRoot();
 @Module({
@@ -19,6 +21,9 @@ ConfigModule.forRoot();
     RateLimiterModule.register({
       points: 100,
       duration: 60,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'views'),
     }),
   ],
   controllers: [AppController],

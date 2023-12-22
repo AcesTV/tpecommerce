@@ -1,0 +1,15 @@
+<!-- views/products.hbs -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Products List</title>
+</head>
+<body>
+<h1>Liste des Produits</h1>
+<ul>
+  {{#each products}}
+    <li>{{this.name}} - {{this.price}} €</li>
+  {{/each}}
+</ul>
+</body>
+</html>

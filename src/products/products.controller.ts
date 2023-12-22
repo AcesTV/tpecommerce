@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Render,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product as ProductModel } from '@prisma/client';
@@ -19,6 +20,13 @@ import { UserRole } from '../enums/user-role.enum';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Get('')
+  @Render('products')
+  async showProducts() {
+    const products = await this.productsService.findAll();
+    return { products };
+  }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
