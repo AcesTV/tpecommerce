@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserRole } from '@prisma/client';
 // import { LocalAuthGuard } from './local-auth.guard';
@@ -18,6 +18,16 @@ export class AuthController {
       role: UserRole;
     },
   ) {
+    if (
+      !userdata.name ||
+      !userdata.email ||
+      !userdata.password ||
+      !userdata.adress ||
+      !userdata.role
+    ) {
+      throw new BadRequestException('Tous les champs sont obligatoires');
+    }
+
     return this.authService.signup(
       userdata.name,
       userdata.email,

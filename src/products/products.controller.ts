@@ -17,10 +17,11 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../enums/user-role.enum';
 
 @Controller('products')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
   @Post()
   async create(
@@ -54,6 +55,7 @@ export class ProductsController {
     return this.productsService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
   @Patch(':id')
   async update(
@@ -69,6 +71,7 @@ export class ProductsController {
     return this.productsService.update(+id, productData);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<ProductModel> {
