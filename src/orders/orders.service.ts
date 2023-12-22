@@ -45,7 +45,7 @@ export class OrdersService {
           data: {
             userId: userId,
             status: orderData.status,
-            totalPrice: totalPrice,
+            totalPrice: parseFloat(totalPrice.toFixed(2)),
           },
         });
 
@@ -141,7 +141,7 @@ export class OrdersService {
           where: { id: orderId },
           data: {
             status: orderData.status,
-            totalPrice: totalPrice,
+            totalPrice: parseFloat(totalPrice.toFixed(2)),
           },
         });
 
