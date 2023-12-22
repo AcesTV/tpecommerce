@@ -31,7 +31,6 @@ export class OrdersController {
     }
 
     const userId = req.user.userId;
-    console.log(userId);
     const { status, products } = orderData;
 
     return this.ordersService.create({ status, products }, userId);

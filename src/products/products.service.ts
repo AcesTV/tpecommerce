@@ -64,8 +64,6 @@ export class ProductsService {
         data,
       });
     } catch (error) {
-      console.log('error!!!!!');
-      console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Gérer le produit non trouvé
         if (error.code === 'P2025') {
