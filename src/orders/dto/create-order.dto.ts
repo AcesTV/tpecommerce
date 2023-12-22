@@ -8,10 +8,6 @@ class CreateOrderProductDto {
 }
 
 export class CreateOrderDto {
-  @IsNumber()
-  @IsNotEmpty()
-  userId: number;
-
   @IsString()
   @IsNotEmpty()
   status: string;

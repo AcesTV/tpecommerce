@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { Order as OrderModel } from '@prisma/client';
@@ -24,14 +25,16 @@ export class OrdersController {
 
   @Roles(UserRole.Admin, UserRole.Client, UserRole.Manager)
   @Post()
-  create(@Body() orderData: CreateOrderDto): Promise<OrderModel> {
-    if (!orderData.userId || !orderData.status || !orderData.products) {
+  create(@Body() orderData: CreateOrderDto, @Req() req): Promise<OrderModel> {
+    if (!orderData.status || !orderData.products) {
       throw new BadRequestException('Tous les champs sont obligatoires');
     }
 
-    const { userId, status, products } = orderData;
+    const userId = req.user.userId;
+    console.log(userId);
+    const { status, products } = orderData;
 
-    return this.ordersService.create({ userId, status, products });
+    return this.ordersService.create({ status, products }, userId);
   }
 
   @Roles(UserRole.Admin, UserRole.Manager)
@@ -52,8 +55,8 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() orderData: CreateOrderDto,
   ): Promise<OrderModel> {
-    const { userId, status, products } = orderData;
-    return this.ordersService.update(+id, { userId, status, products });
+    const { status, products } = orderData;
+    return this.ordersService.update(+id, { status, products });
   }
 
   @Roles(UserRole.Admin, UserRole.Manager)

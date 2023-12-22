@@ -40,16 +40,32 @@ export class ProductsService {
     return product;
   }
 
-  update(productId: number, data: Prisma.ProductUpdateInput) {
+  async update(productId: number, data: Prisma.ProductUpdateInput) {
     if (!productId) {
       throw new BadRequestException('Un ID de produit valide est requis');
     }
+
+    try {
+      const productExist = await this.prisma.product.findUnique({
+        where: { id: productId },
+      });
+      if (!productExist) {
+        throw new NotFoundException(
+          `Le produit avec l'ID ${productId} n'existe pas`,
+        );
+      }
+    } catch (error) {
+      throw error;
+    }
+
     try {
       return this.prisma.product.update({
         where: { id: productId },
         data,
       });
     } catch (error) {
+      console.log('error!!!!!');
+      console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Gérer le produit non trouvé
         if (error.code === 'P2025') {
@@ -67,6 +83,10 @@ export class ProductsService {
       throw new BadRequestException('Un ID de produit valide est requis');
     }
     try {
+      await this.prisma.orders_products.deleteMany({
+        where: { productId },
+      });
+
       return await this.prisma.product.delete({
         where: { id: productId },
       });
@@ -75,7 +95,7 @@ export class ProductsService {
         // Gérer l'utilisateur non trouvé
         if (error.code === 'P2025') {
           throw new NotFoundException(
-            `Utilisateur avec l'ID ${productId} non trouvé`,
+            `Le produit avec l'ID ${productId} non trouvé`,
           );
         }
       }

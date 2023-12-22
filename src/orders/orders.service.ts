@@ -10,7 +10,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
-  async create(orderData: CreateOrderDto): Promise<Order> {
+  async create(orderData: CreateOrderDto, userId: number): Promise<Order> {
     try {
       return this.prisma.$transaction(async (prisma) => {
         const productIds = orderData.products.map((p) => p.productId);
@@ -43,7 +43,7 @@ export class OrdersService {
 
         const order = await prisma.order.create({
           data: {
-            userId: orderData.userId,
+            userId: userId,
             status: orderData.status,
             totalPrice: totalPrice,
           },
@@ -140,7 +140,6 @@ export class OrdersService {
         const order = await prisma.order.update({
           where: { id: orderId },
           data: {
-            userId: orderData.userId,
             status: orderData.status,
             totalPrice: totalPrice,
           },
@@ -179,11 +178,26 @@ export class OrdersService {
     }
   }
 
-  remove(orderId: number): Promise<Order> {
+  async remove(orderId: number): Promise<Order> {
     if (!orderId) {
       throw new BadRequestException('Un ID de commande valide est requis');
     }
+
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException(
+        `La commande avec l'ID ${orderId} n'existe pas`,
+      );
+    }
+
     try {
+      await this.prisma.orders_products.deleteMany({
+        where: { orderId },
+      });
+
       return this.prisma.order.delete({
         where: { id: orderId },
       });

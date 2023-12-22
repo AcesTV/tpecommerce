@@ -18,7 +18,6 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../enums/user-role.enum';
 
 @Controller('users')
-@UseGuards(RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -45,21 +44,21 @@ export class UsersController {
     return this.usersService.create(userData);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Get()
   async findAll(): Promise<UserModel[]> {
     return this.usersService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserModel> {
     return this.usersService.findOne(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Patch(':id')
   async update(
@@ -76,7 +75,7 @@ export class UsersController {
     return this.usersService.update(+id, userData);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<UserModel> {

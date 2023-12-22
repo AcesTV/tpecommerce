@@ -17,11 +17,10 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../enums/user-role.enum';
 
 @Controller('products')
-@UseGuards(RolesGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
   @Post()
   async create(
@@ -55,7 +54,7 @@ export class ProductsController {
     return this.productsService.findOne(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
   @Patch(':id')
   async update(
@@ -68,10 +67,13 @@ export class ProductsController {
       quantityInStock?: number;
     },
   ): Promise<ProductModel> {
+    if (!id) {
+      throw new BadRequestException('Un ID de produit valide est requis');
+    }
     return this.productsService.update(+id, productData);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin, UserRole.Manager)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<ProductModel> {
