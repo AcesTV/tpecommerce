@@ -22,9 +22,7 @@ import { UserRole } from '../enums/user-role.enum';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Roles(UserRole.Admin)
-  @Roles(UserRole.Client)
-  @Roles(UserRole.Manager)
+  @Roles(UserRole.Admin, UserRole.Client, UserRole.Manager)
   @Post()
   create(@Body() orderData: CreateOrderDto): Promise<OrderModel> {
     if (!orderData.userId || !orderData.status || !orderData.products) {
@@ -36,19 +34,19 @@ export class OrdersController {
     return this.ordersService.create({ userId, status, products });
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.Admin, UserRole.Manager)
   @Get()
   findAll(): Promise<OrderModel[]> {
     return this.ordersService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.Admin, UserRole.Manager)
   @Get(':id')
   findOne(@Param('id') id: string): Promise<OrderModel> {
     return this.ordersService.findOne(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.Admin, UserRole.Manager)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -58,7 +56,7 @@ export class OrdersController {
     return this.ordersService.update(+id, { userId, status, products });
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.Admin, UserRole.Manager)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ordersService.remove(+id);

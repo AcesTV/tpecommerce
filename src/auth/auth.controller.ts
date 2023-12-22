@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { UserRole } from '@prisma/client';
 // import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
@@ -14,7 +15,7 @@ export class AuthController {
       email: string;
       password: string;
       adress: string;
-      role: string;
+      role: UserRole;
     },
   ) {
     return this.authService.signup(

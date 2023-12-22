@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma.service';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { UserRole } from '../enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -86,9 +87,17 @@ export class UsersService {
     if (!userId) {
       throw new BadRequestException("Un ID d'utilisateur valide est requis");
     }
+    if (
+      data.role &&
+      data.role !== UserRole.Admin &&
+      data.role !== UserRole.Manager &&
+      data.role !== UserRole.Client
+    ) {
+      throw new BadRequestException('Un rôle valide est requis');
+    }
     try {
       const password =
-        typeof data.password === 'string' ? data.password : data.password.set;
+        typeof data.password === 'string' ? data.password : undefined;
       if (password) {
         data.password = await bcrypt.hash(password, 10);
       }
@@ -100,6 +109,7 @@ export class UsersService {
           email: data.email,
           password: data.password,
           adress: data.adress,
+          role: data.role,
         },
       });
     } catch (error) {
