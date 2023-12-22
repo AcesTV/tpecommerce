@@ -22,8 +22,7 @@ export class AuthController {
       !userdata.name ||
       !userdata.email ||
       !userdata.password ||
-      !userdata.adress ||
-      !userdata.role
+      !userdata.adress
     ) {
       throw new BadRequestException('Tous les champs sont obligatoires');
     }

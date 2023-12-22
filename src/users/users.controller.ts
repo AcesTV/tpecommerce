@@ -37,8 +37,7 @@ export class UsersController {
       !userData.name ||
       !userData.email ||
       !userData.password ||
-      !userData.adress ||
-      !userData.role
+      !userData.adress
     ) {
       throw new BadRequestException('Tous les champs sont obligatoires');
     }
