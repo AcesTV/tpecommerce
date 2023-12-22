@@ -87,7 +87,7 @@ export class OrdersService {
       },
     });
 
-    if (!order) {
+    if (!order || !order.products) {
       throw new NotFoundException(
         `La commande avec l'ID ${orderId} n'existe pas`,
       );
@@ -106,6 +106,16 @@ export class OrdersService {
 
         if (!orderId) {
           throw new Error(`Commande avec l'ID ${orderId} non trouvée.`);
+        }
+
+        const orderExist = await prisma.order.findUnique({
+          where: { id: orderId },
+        });
+
+        if (!orderExist) {
+          throw new NotFoundException(
+            `La commande avec l'ID ${orderId} n'existe pas`,
+          );
         }
 
         // Vérifier l'existence des produits
