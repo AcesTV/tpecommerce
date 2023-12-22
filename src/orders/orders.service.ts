@@ -76,18 +76,18 @@ export class OrdersService {
     });
   }
 
-  findOne(orderId: number): Promise<Order> {
+  async findOne(orderId: number): Promise<Order> {
     if (!orderId) {
       throw new BadRequestException('Un ID de commande valide est requis');
     }
-    const order = this.prisma.order.findUnique({
+    const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
         products: true,
       },
     });
 
-    if (!order || !order.products) {
+    if (!order) {
       throw new NotFoundException(
         `La commande avec l'ID ${orderId} n'existe pas`,
       );
