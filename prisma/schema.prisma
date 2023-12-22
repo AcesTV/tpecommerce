@@ -20,12 +20,13 @@ model Product {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String
-  email    String  @unique
+  email    String   @unique
   password String
   adress   String
   orders   Order[]
+  role     UserRole @default(client)
 }
 
 model Order {
@@ -46,4 +47,10 @@ model orders_products {
   product   Product @relation(fields: [productId], references: [id])
 
   @@id([orderId, productId])
+}
+
+enum UserRole {
+  client
+  manager
+  admin
 }

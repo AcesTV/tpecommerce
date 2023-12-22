@@ -21,6 +21,7 @@ export class UsersService {
           email: data.email,
           password: encryptedPassword,
           adress: data.adress,
+          role: data.role,
         },
       });
     } catch (error) {
